@@ -145,19 +145,18 @@ function Boy() {
     const v = viewAt(state, Z)
     const info = arrivalInfo(S.progress)
     const hidden = S.zoom.active
-    // walk from how fast the WORLD actually moves (scenes/sec), not raw scroll —
-    // so he never walks in place while parked in a dwell zone.
-    const inst = Math.abs(info.tp - prevTp.current) / Math.max(dt, 1 / 120)
+    // Couple the legs directly to how far the world moved this frame, so the
+    // walk is always perfectly in step with the ground — smooth, never skating,
+    // and it naturally slows/speeds with the scene (no cadence jitter from dt).
+    const dtp = info.tp - prevTp.current
     prevTp.current = info.tp
-    worldVel.current = lerp(worldVel.current, inst, 0.3)
-    const wv = worldVel.current
-    const moving = wv > 0.05
+    worldVel.current = lerp(worldVel.current, Math.abs(dtp) / Math.max(dt, 1 / 120), 0.2)
+    const moving = worldVel.current > 0.06
 
     let aspect, flip
     if (moving) {
-      // advance the cycle in step with travel speed
-      const fps = clamp(wv * 14, 6, 16)
-      frame.current = (frame.current + dt * fps) % BOY.walkFrames
+      const FRAMES_PER_SCENE = 26 // walk-cycle frames per one scene of travel
+      frame.current = (frame.current + Math.abs(dtp) * FRAMES_PER_SCENE) % BOY.walkFrames
       walk.offset.x = Math.floor(frame.current) / BOY.walkFrames
       if (mat.current.map !== walk) mat.current.map = walk
       aspect = BOY.walkAspect

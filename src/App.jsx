@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useProgress } from '@react-three/drei'
 import SceneCanvas from './scene/Scene'
 import { scene as S, CENTERS, START, arrivalInfo, clamp, lerp } from './scene/store'
 import { CHAPTERS } from './scene/chapters'
@@ -30,17 +31,23 @@ export default function App() {
 
   const st = useRef({ targetY: 0, curY: 0, prog: 0, ptx: 0, pty: 0, tptx: 0, tpty: 0, lastIdx: -1, lastPhase: '' })
 
-  // opening beats
+  // opening reveal steps (visual)
   useEffect(() => {
     S.reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false
     const t = [
-      setTimeout(() => setOpenStep(1), 500),
-      setTimeout(() => setOpenStep(2), 1500),
-      setTimeout(() => setOpenStep(3), 2600),
-      setTimeout(() => setOpeningDone(true), 4200),
+      setTimeout(() => setOpenStep(1), 400),
+      setTimeout(() => setOpenStep(2), 1100),
+      setTimeout(() => setOpenStep(3), 1900),
     ]
     return () => t.forEach(clearTimeout)
   }, [])
+
+  // hold the opening screen until every texture has actually loaded
+  const { active, progress } = useProgress()
+  const ready = progress >= 100 && !active
+  useEffect(() => {
+    if (ready && openStep >= 3) { const t = setTimeout(() => setOpeningDone(true), 500); return () => clearTimeout(t) }
+  }, [ready, openStep])
 
   useEffect(() => {
     document.body.style.height = `${PAGE_SCREENS * 100}vh`
@@ -208,7 +215,7 @@ export default function App() {
       )}
 
       {/* ── Opening screen ── */}
-      {!openingDone && <OpeningScreen step={openStep} />}
+      {!openingDone && <OpeningScreen step={openStep} progress={progress} ready={ready} />}
 
       {/* ── Content overlay ── */}
       {OverlayComp && (
@@ -223,7 +230,7 @@ export default function App() {
   )
 }
 
-function OpeningScreen({ step }) {
+function OpeningScreen({ step, progress = 0, ready = false }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0e16', transition: 'opacity 0.8s ease' }}>
       <svg width="48" height="72" viewBox="0 0 48 72">
@@ -247,8 +254,22 @@ function OpeningScreen({ step }) {
           </div>
         </div>
       )}
-      <div className="caveat" style={{ fontSize: 20, color: '#FDF0D5', marginTop: 24, opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.8s ease', animation: step >= 3 ? 'pulsePrompt 2s ease-in-out infinite' : 'none' }}>
-        Scroll to continue ↓
+      {/* loading bar → swaps to the scroll prompt once everything is loaded */}
+      <div style={{ marginTop: 26, height: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        {ready ? (
+          <div className="caveat" style={{ fontSize: 20, color: '#FDF0D5', opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.6s ease', animation: step >= 3 ? 'pulsePrompt 2s ease-in-out infinite' : 'none' }}>
+            Scroll to begin — Chotu will walk you there ↓
+          </div>
+        ) : (
+          <div style={{ width: 'min(60vw, 260px)', textAlign: 'center' }}>
+            <div style={{ height: 5, width: '100%', borderRadius: 4, background: 'rgba(253,240,213,0.15)', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${Math.round(progress)}%`, background: 'linear-gradient(90deg,#FFA726,#F4831F)', borderRadius: 4, transition: 'width 0.3s ease' }} />
+            </div>
+            <div className="caveat" style={{ fontSize: 15, color: 'rgba(253,240,213,0.7)', marginTop: 10 }}>
+              Loading the village… {Math.round(progress)}%
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

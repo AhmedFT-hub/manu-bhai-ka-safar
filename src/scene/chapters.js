@@ -1,5 +1,3 @@
-import { PROPS } from './assets'
-
 // The seven stops on Manu Bhai's journey. Content carried over from the
 // original script; each maps to a content overlay (overlayId).
 export const CHAPTERS = [
@@ -73,16 +71,4 @@ export const CHAPTERS = [
       { hi: 'Agle padaav pe milte hain — muskaan aur badi hogi. 🌟', en: 'See you at the next milestone — smiles will grow even wider.' },
     ],
   },
-]
-
-// Painterly "moments along the road" — shown as framed snapshots while the boy
-// walks the stretch between stop `gapAfter` and the next. (Different art style
-// reads intentionally, like postcards from the journey.)
-export const MOMENTS = [
-  { gapAfter: 0, img: PROPS.goat,    hi: 'Raaste mein ek nanhi bakri mili.',   en: 'A little goat trots along the road.' },
-  { gapAfter: 1, img: PROPS.chai,    hi: 'Ramu ki chai pe gaon rukta hai.',     en: "The whole village pauses at Ramu's chai stall." },
-  { gapAfter: 2, img: PROPS.pump,    hi: 'Handpump pe thandi paani ki dhaar.',  en: 'Cool water from the old hand pump.' },
-  { gapAfter: 3, img: PROPS.cart,    hi: 'Bail-gaadi dheere dheere ghar chali.', en: 'A bullock cart rolls slowly home.' },
-  { gapAfter: 4, img: PROPS.washing, hi: 'Aangan mein sookhti rangeen kapde.',   en: 'Bright clothes drying in the courtyard.' },
-  { gapAfter: 5, img: PROPS.crow,    hi: 'Taar pe baitha ek kauwa dekhta raha.', en: 'A crow on the wire watches it all.' },
 ]

@@ -1,32 +1,23 @@
-// Cleaned, web-ready assets live in /public (served at /scene/…)
-// ?v=N busts the browser cache whenever the PNGs are regenerated.
-const V = '9'
+// Cleaned, web-ready assets live in /public (served at /scene/…), as WebP for
+// fast loading. ?v=N busts the browser cache when the assets are regenerated.
+const V = '10'
 const B = `/scene`
 const u = (name) => `${B}/${name}?v=${V}`
 
 // Seven complete, full-bleed scenes — one per milestone — that we travel through.
 export const SCENES = [
-  u('scn1.png'), u('scn2.png'), u('scn3.png'),
-  u('scn4.png'), u('scn5.png'), u('scn6.png'), u('scn7.png'),
+  u('scn1.webp'), u('scn2.webp'), u('scn3.webp'),
+  u('scn4.webp'), u('scn5.webp'), u('scn6.webp'), u('scn7.webp'),
 ]
 
 export const BOY = {
-  walkStrip: u('boy-walk-strip.png'), // 10-frame walk cycle, horizontal
+  walkStrip: u('boy-walk-strip.webp'), // 10-frame walk cycle, horizontal
   walkFrames: 10,
-  walkAspect: 188 / 321,              // one frame's w/h
-  idle:  u('boy-idle.png'),
-  wave:  u('boy-wave.png'),
-  talk:  u('boy-talk.png'),
-  celebrateStrip: u('boy-celebrate-strip.png'), // 6-frame finale celebration loop
+  walkAspect: 188 / 321,
+  idle:  u('boy-idle.webp'),
+  wave:  u('boy-wave.webp'),
+  talk:  u('boy-talk.webp'),
+  celebrateStrip: u('boy-celebrate-strip.webp'), // 6-frame finale celebration loop
   celebrateFrames: 6,
   celebrateAspect: 266 / 380,
-}
-
-export const PROPS = {
-  cart:    u('prop-cart.png'),
-  chai:    u('prop-chai.png'),
-  pump:    u('prop-pump.png'),
-  washing: u('prop-washing.png'),
-  goat:    u('prop-goat.png'),
-  crow:    u('prop-crow.png'),
 }

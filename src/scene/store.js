@@ -24,22 +24,14 @@ export const START = 0.05 // brief hero intro before scene 1 settles
 export const END = 1.0    // last scene is centred exactly at the bottom — no dead scroll
 export const N = 7
 
-// Dwell plateau: hold near each scene for a generous stretch of scroll, then
-// transition only through the middle of each gap. This gives the user an ample,
-// forgiving zone to land centred on every landmark (instead of a knife-edge).
-function dwellEase(f) {
-  const lo = 0.30, hi = 0.70 // 60% of each gap is "landed", 40% is the move
-  if (f <= lo) return 0
-  if (f >= hi) return 1
-  return smooth((f - lo) / (hi - lo))
-}
-
-// travel position across the scenes: 0 (scene 0 centred) → N-1 (last centred)
+// Eased travel: smoothstep within each gap slows the world to near-rest AT each
+// landmark (so it's easy + forgiving to land) but never fully freezes — so the
+// boy keeps walking smoothly instead of stuttering start/stop through a plateau.
 export function travelPos(progress) {
   const raw = clamp((progress - START) / (END - START), 0, 1) * (N - 1)
   const k = Math.floor(raw)
   if (k >= N - 1) return N - 1
-  return k + dwellEase(raw - k)
+  return k + smooth(raw - k)
 }
 
 // current milestone + how "arrived"/landed we are (1 = centred, 0 = mid-transition)
