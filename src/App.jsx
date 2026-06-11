@@ -248,7 +248,7 @@ function OpeningScreen({ step, progress = 0, ready = false }) {
       </div>
       {step >= 2 && (
         <div style={{ margin: '30px 0 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'noteUnfurl 0.5s ease both' }}>
-          <img src={BOY.stand} alt="" style={{ height: 'min(34vh, 280px)', filter: 'drop-shadow(0 14px 26px rgba(0,0,0,0.5))' }} />
+          <img src={BOY.front} alt="" style={{ height: 'min(34vh, 280px)', filter: 'drop-shadow(0 14px 26px rgba(0,0,0,0.5))' }} />
           <div style={{ background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(244,131,31,0.55)', borderRadius: 16, padding: '12px 22px', maxWidth: 460, textAlign: 'center', backdropFilter: 'blur(8px)', marginTop: 14 }}>
             <span className="caveat" style={{ fontSize: 20, color: '#FDF0D5' }}>"Hello Manu Bhai! I'm Chotu — come, let me show you around my village! 🌟"</span>
           </div>

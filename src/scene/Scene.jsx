@@ -127,12 +127,12 @@ function SceneImage({ url, index, focal }) {
 
 // ── the boy guide: real 10-frame walk cycle while moving, poses at stops ─────
 function Boy() {
-  const [walk, stand, celebrate] = useTexture([BOY.walkStrip, BOY.stand, BOY.celebrateStrip])
+  const [walk, stand, front, celebrate] = useTexture([BOY.walkStrip, BOY.stand, BOY.front, BOY.celebrateStrip])
   useMemo(() => {
-    cfg(stand)
+    cfg(stand); cfg(front)
     cfg(walk); walk.wrapS = THREE.RepeatWrapping; walk.repeat.x = 1 / BOY.walkFrames
     cfg(celebrate); celebrate.wrapS = THREE.RepeatWrapping; celebrate.repeat.x = 1 / BOY.celebrateFrames
-  }, [walk, stand, celebrate])
+  }, [walk, stand, front, celebrate])
   const group = useRef(), mesh = useRef(), mat = useRef(), shadow = useRef()
   const Z = -4
   const frame = useRef(0)
@@ -167,8 +167,13 @@ function Boy() {
       if (mat.current.map !== celebrate) mat.current.map = celebrate
       aspect = BOY.celebrateAspect
       flip = 1
+    } else if (info.index === 0) {
+      // village entrance → face the viewer (greeting); walk begins once you move on
+      if (mat.current.map !== front) mat.current.map = front
+      aspect = BOY.frontAspect
+      flip = 1
     } else {
-      // standing at a stop (same character, no broken old poses)
+      // standing at a stop (same character, side profile)
       if (mat.current.map !== stand) mat.current.map = stand
       aspect = BOY.standAspect
       flip = 1

@@ -1,6 +1,6 @@
 // Cleaned, web-ready assets live in /public (served at /scene/…), as WebP for
 // fast loading. ?v=N busts the browser cache when the assets are regenerated.
-const V = '12'
+const V = '13'
 const B = `/scene`
 const u = (name) => `${B}/${name}?v=${V}`
 
@@ -18,6 +18,8 @@ export const BOY = {
   walkAspect: 190 / 318,
   stand: u('boy-stand.webp'), // upright standing frame (frame 5 of the walk)
   standAspect: 152 / 312,
+  front: u('boy-front.webp'), // facing the viewer — used at the village entrance
+  frontAspect: 292 / 640,
   celebrateStrip: u('boy-celebrate-strip.webp'), // 6-frame finale celebration loop
   celebrateFrames: 6,
   celebrateAspect: 300 / 377,
