@@ -127,13 +127,12 @@ function SceneImage({ url, index, focal }) {
 
 // ── the boy guide: real 10-frame walk cycle while moving, poses at stops ─────
 function Boy() {
-  const [walk, idle, wave, talk, celebrate] = useTexture([BOY.walkStrip, BOY.idle, BOY.wave, BOY.talk, BOY.celebrateStrip])
+  const [walk, stand, celebrate] = useTexture([BOY.walkStrip, BOY.stand, BOY.celebrateStrip])
   useMemo(() => {
-    ;[idle, wave, talk].forEach(cfg)
+    cfg(stand)
     cfg(walk); walk.wrapS = THREE.RepeatWrapping; walk.repeat.x = 1 / BOY.walkFrames
     cfg(celebrate); celebrate.wrapS = THREE.RepeatWrapping; celebrate.repeat.x = 1 / BOY.celebrateFrames
-  }, [walk, idle, wave, talk, celebrate])
-  const ar = (t) => t.image.width / t.image.height
+  }, [walk, stand, celebrate])
   const group = useRef(), mesh = useRef(), mat = useRef(), shadow = useRef()
   const Z = -4
   const frame = useRef(0)
@@ -169,9 +168,9 @@ function Boy() {
       aspect = BOY.celebrateAspect
       flip = 1
     } else {
-      const t = info.arrived > 0.5 ? ((info.index === 0 && info.arrived > 0.7) ? wave : talk) : idle
-      if (mat.current.map !== t) mat.current.map = t
-      aspect = ar(t)
+      // standing at a stop (same character, no broken old poses)
+      if (mat.current.map !== stand) mat.current.map = stand
+      aspect = BOY.standAspect
       flip = 1
     }
 
