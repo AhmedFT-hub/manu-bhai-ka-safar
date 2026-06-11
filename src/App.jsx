@@ -12,7 +12,7 @@ import Overlay6Photos from './components/overlays/Overlay6Photos'
 import Overlay7Birthday from './components/overlays/Overlay7Birthday'
 
 const OVERLAY_MAP = { 1: Overlay1Welcome, 2: Overlay2WhenWeBegan, 3: Overlay3Drawings, 4: Overlay4Achievements, 5: Overlay5Today, 6: Overlay6Photos, 7: Overlay7Birthday }
-const PAGE_SCREENS = 12 // total scrollable height in viewport-heights
+const PAGE_SCREENS = 16 // total scrollable height in viewport-heights (room to land on each stop)
 
 const setS = (el, props) => { if (el) for (const k in props) el.style[k] = props[k] }
 

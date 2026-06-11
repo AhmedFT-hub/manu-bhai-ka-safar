@@ -126,7 +126,6 @@ function SceneImage({ url, index, focal }) {
 }
 
 // ── the boy guide: real 10-frame walk cycle while moving, poses at stops ─────
-const FPS = 11 // walk-cycle frame rate
 function Boy() {
   const [walk, idle, wave, talk, celebrate] = useTexture([BOY.walkStrip, BOY.idle, BOY.wave, BOY.talk, BOY.celebrateStrip])
   useMemo(() => {
@@ -139,18 +138,25 @@ function Boy() {
   const Z = -4
   const frame = useRef(0)
   const celebFrame = useRef(0)
+  const prevTp = useRef(0), worldVel = useRef(0)
   const shadowTex = useMemo(() => radialTexture(), [])
 
   useFrame((state, dt) => {
     const v = viewAt(state, Z)
     const info = arrivalInfo(S.progress)
     const hidden = S.zoom.active
-    const moving = clamp(S.velocity, 0, 1) > 0.014 // only walk while the world moves
+    // walk from how fast the WORLD actually moves (scenes/sec), not raw scroll —
+    // so he never walks in place while parked in a dwell zone.
+    const inst = Math.abs(info.tp - prevTp.current) / Math.max(dt, 1 / 120)
+    prevTp.current = info.tp
+    worldVel.current = lerp(worldVel.current, inst, 0.3)
+    const wv = worldVel.current
+    const moving = wv > 0.05
 
     let aspect, flip
     if (moving) {
-      // advance the cycle only while moving, cadence scaling with travel speed
-      const fps = FPS * (0.6 + clamp(S.velocity, 0, 1) * 1.8)
+      // advance the cycle in step with travel speed
+      const fps = clamp(wv * 14, 6, 16)
       frame.current = (frame.current + dt * fps) % BOY.walkFrames
       walk.offset.x = Math.floor(frame.current) / BOY.walkFrames
       if (mat.current.map !== walk) mat.current.map = walk
