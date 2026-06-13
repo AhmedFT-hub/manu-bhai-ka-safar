@@ -159,6 +159,13 @@ export default function App() {
   useEffect(() => { S.onEnter = startEnter; return () => { S.onEnter = null } }, [startEnter])
   useEffect(() => { currentOverlayRef.current = currentOverlay }, [currentOverlay])
   useEffect(() => { visitedRef.current = visited }, [visited])
+  // Escape closes the open milestone popup
+  useEffect(() => {
+    if (!currentOverlay) return
+    const onKey = (e) => { if (e.key === 'Escape') closeOverlay() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [currentOverlay, closeOverlay])
   const scrollToStop = useCallback((i) => {
     const max = document.body.scrollHeight - window.innerHeight
     window.scrollTo({ top: CENTERS[i] * max, behavior: 'smooth' })
@@ -200,18 +207,16 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── after viewing a milestone: prominent "scroll to next" prompt ── */}
+      {/* ── after viewing a milestone: subtle "scroll to move ahead" hint ── */}
       <div ref={cueRef} style={{
-        position: 'fixed', left: '50%', bottom: 'clamp(24px,5vh,56px)', transform: 'translateX(-50%)', zIndex: 6,
-        opacity: 0, pointerEvents: 'none', transition: 'opacity 0.5s ease',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-        <div className="baloo" style={{ background: 'rgba(20,10,4,0.62)', color: '#FFE8C2', backdropFilter: 'blur(8px)',
-          border: '1.5px solid rgba(255,209,128,0.7)', borderRadius: 999, padding: '12px 28px',
-          fontSize: 'clamp(15px,1.7vw,21px)', fontWeight: 700, whiteSpace: 'nowrap',
-          boxShadow: '0 8px 28px rgba(0,0,0,0.45)' }}>
-          Scroll on to the next milestone
+        position: 'fixed', left: '50%', bottom: 'clamp(18px,4vh,40px)', transform: 'translateX(-50%)', zIndex: 6,
+        opacity: 0, pointerEvents: 'none', transition: 'opacity 0.6s ease',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+        <div className="caveat" style={{ color: 'rgba(255,240,213,0.9)', fontSize: 'clamp(13px,1.3vw,16px)',
+          letterSpacing: '0.04em', textShadow: '0 1px 8px rgba(0,0,0,0.7)' }}>
+          Scroll to move ahead
         </div>
-        <div style={{ fontSize: 26, color: '#FFD180', animation: 'pulsePrompt 1.4s ease-in-out infinite', textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}>↓</div>
+        <div style={{ fontSize: 18, color: 'rgba(255,209,128,0.9)', animation: 'pulsePrompt 1.6s ease-in-out infinite', textShadow: '0 1px 8px rgba(0,0,0,0.7)' }}>↓</div>
       </div>
 
       {/* ── Progress diyas ── */}
