@@ -30,6 +30,7 @@ export default function App() {
   const speechRef = useRef(), cueRef = useRef(), heroRef = useRef()
   const currentOverlayRef = useRef(null)
   const visitedRef = useRef(new Set())
+  const maxUnlockedRef = useRef(0) // furthest milestone index the journey is unlocked to
 
   const st = useRef({ targetY: 0, curY: 0, prog: 0, ptx: 0, pty: 0, tptx: 0, tpty: 0, lastIdx: -1, lastPhase: '' })
 
@@ -74,7 +75,12 @@ export default function App() {
       s.targetY = window.scrollY
       const prev = s.curY
       s.curY += (s.targetY - s.curY) * 0.09
-      const raw = clamp(s.curY / maxScroll(), 0, 1)
+      // Gate: can't scroll past a milestone until it's been viewed. Forward
+      // travel is clamped to the furthest unlocked milestone (+ a hair of dwell).
+      const ms = maxScroll()
+      const allowedY = (CENTERS[maxUnlockedRef.current] + 0.012) * ms
+      if (s.curY > allowedY) s.curY = allowedY
+      const raw = clamp(s.curY / ms, 0, 1)
       s.prog += (raw - s.prog) * 0.16
       const vel = clamp(Math.abs(s.curY - prev) / window.innerHeight * 4, 0, 1)
 
@@ -129,7 +135,12 @@ export default function App() {
   }, [])
 
   const enterRef = useRef({ opened: false })
-  const openOverlay = useCallback((id) => { setCurrentOverlay(id); setVisited((p) => new Set([...p, id])) }, [])
+  const openOverlay = useCallback((id) => {
+    setCurrentOverlay(id)
+    setVisited((p) => new Set([...p, id]))
+    // viewing milestone (index = id-1) unlocks the next one
+    maxUnlockedRef.current = Math.min(Math.max(maxUnlockedRef.current, id), CHAPTERS.length - 1)
+  }, [])
   const startEnter = useCallback((i) => {
     if (S.zoom.active) return
     enterRef.current.opened = false
@@ -174,7 +185,7 @@ export default function App() {
           One village. Seven milestones. A journey made just for you.
         </p>
         <div className="caveat" style={{ marginTop: 54, fontSize: 20, color: 'rgba(253,240,213,0.85)', animation: 'pulsePrompt 2s ease-in-out infinite' }}>
-          Scroll to begin — Chotu will walk you there ↓
+          Tap the glowing gate to begin ✨
         </div>
       </div>
 

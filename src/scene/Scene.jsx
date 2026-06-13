@@ -141,12 +141,12 @@ function SceneImage({ url, index, halo }) {
 
 // ── the boy guide: real 10-frame walk cycle while moving, poses at stops ─────
 function Boy() {
-  const [walk, stand, front, celebrate] = useTexture([BOY.walkStrip, BOY.stand, BOY.front, BOY.celebrateStrip])
+  const [walk, stand, front, talk, celebrate] = useTexture([BOY.walkStrip, BOY.stand, BOY.front, BOY.talk, BOY.celebrateStrip])
   useMemo(() => {
-    cfg(stand); cfg(front)
+    cfg(stand); cfg(front); cfg(talk)
     cfg(walk); walk.wrapS = THREE.RepeatWrapping; walk.repeat.x = 1 / BOY.walkFrames
     cfg(celebrate); celebrate.wrapS = THREE.RepeatWrapping; celebrate.repeat.x = 1 / BOY.celebrateFrames
-  }, [walk, stand, front, celebrate])
+  }, [walk, stand, front, talk, celebrate])
   const group = useRef(), mesh = useRef(), mat = useRef(), shadow = useRef()
   const Z = -4
   const frame = useRef(0)
@@ -166,7 +166,7 @@ function Boy() {
     worldVel.current = lerp(worldVel.current, Math.abs(dtp) / Math.max(dt, 1 / 120), 0.2)
     const moving = worldVel.current > 0.06
 
-    let aspect, flip
+    let aspect, flip, talking = false
     if (moving) {
       const FRAMES_PER_SCENE = 26 // walk-cycle frames per one scene of travel
       frame.current = (frame.current + Math.abs(dtp) * FRAMES_PER_SCENE) % BOY.walkFrames
@@ -187,18 +187,23 @@ function Boy() {
       aspect = BOY.frontAspect
       flip = 1
     } else {
-      // standing at a stop (same character, side profile)
-      if (mat.current.map !== stand) mat.current.map = stand
-      aspect = BOY.standAspect
+      // arrived at a milestone → talking / gesturing
+      if (mat.current.map !== talk) mat.current.map = talk
+      aspect = BOY.talkAspect
       flip = 1
+      talking = true
     }
 
     const hH = v.height * 0.42
     const wW = hH * aspect
-    const idleBreath = moving ? 0 : Math.sin(state.clock.elapsedTime * 1.6) * hH * 0.005
-    const footY = -v.height / 2 + v.height * 0.085
-    group.current.position.set(-v.width * 0.26, footY + hH / 2 + idleBreath, Z)
-    mesh.current.scale.set(wW * flip, hH, 1)
+    const tk = state.clock.elapsedTime
+    const idleBreath = moving ? 0 : Math.sin(tk * 1.6) * hH * 0.005
+    // lively "speaking" motion at a stop (the asset is one frame, so bob + squash)
+    const talkBob = talking ? Math.abs(Math.sin(tk * 5.2)) * hH * 0.016 : 0
+    const talkSquash = talking ? 1 + Math.sin(tk * 5.2) * 0.012 : 1
+    const footY = -v.height / 2 + v.height * 0.165 // stand ON the path, not in it
+    group.current.position.set(-v.width * 0.26, footY + hH / 2 + idleBreath + talkBob, Z)
+    mesh.current.scale.set(wW * flip, hH * talkSquash, 1)
     mat.current.opacity = hidden ? 0 : 1
 
     shadow.current.scale.set(Math.abs(wW) * 0.6, hH * 0.08, 1)
