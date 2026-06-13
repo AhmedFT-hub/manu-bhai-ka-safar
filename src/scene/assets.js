@@ -1,6 +1,6 @@
 // Cleaned, web-ready assets live in /public (served at /scene/…), as WebP for
 // fast loading. ?v=N busts the browser cache when the assets are regenerated.
-const V = '13'
+const V = '14'
 const B = `/scene`
 const u = (name) => `${B}/${name}?v=${V}`
 
@@ -9,6 +9,10 @@ export const SCENES = [
   u('scn1.webp'), u('scn2.webp'), u('scn3.webp'),
   u('scn4.webp'), u('scn5.webp'), u('scn6.webp'), u('scn7.webp'),
 ]
+
+// Real milestone content
+export const DRAWINGS = [1, 2, 3, 4, 5].map((n) => u(`drawing-${n}.webp`)) // notice board (Scene 3)
+export const PHOTOS = [1, 2, 3, 4].map((n) => u(`photo-${n}.webp`))         // memory wall (Scene 6)
 
 // Opening establishing shot (aerial view of the whole village). Placeholder is
 // the entrance scene (reads as a zoom-into-the-village); swap to the real aerial
