@@ -1,6 +1,6 @@
 // Cleaned, web-ready assets live in /public (served at /scene/…), as WebP for
 // fast loading. ?v=N busts the browser cache when the assets are regenerated.
-const V = '17'
+const V = '18'
 const B = `/scene`
 const u = (name) => `${B}/${name}?v=${V}`
 
@@ -13,6 +13,8 @@ export const SCENES = [
 // Real milestone content
 export const DRAWINGS = [1, 2, 3, 4, 5].map((n) => u(`drawing-${n}.webp`)) // notice board (Scene 3)
 export const PHOTOS = [1, 2, 3, 4].map((n) => u(`photo-${n}.webp`))         // memory wall (Scene 6)
+// designed infographic slides shown as the popup view for these milestones
+export const SLIDES = { 2: u('slide-2.webp'), 4: u('slide-4.webp'), 5: u('slide-5.webp') }
 
 // Opening establishing shot (aerial view of the whole village). Placeholder is
 // the entrance scene (reads as a zoom-into-the-village); swap to the real aerial
