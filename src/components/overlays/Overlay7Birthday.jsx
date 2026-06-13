@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import VideoPlayer from '../VideoPlayer'
 
 const CONFETTI_COLORS = ['#F4831F', '#FFC107', '#4CAF50', '#E53935', '#FFFFFF', '#9C27B0', '#2196F3']
 const CHIT_MESSAGES = [
@@ -169,16 +170,8 @@ export default function Overlay7Birthday() {
         </div>
 
         {/* Thank-you video */}
-        <div style={{ width: '100%', maxWidth: 640, border: '6px solid #F4831F', borderRadius: 14, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.22)', background: '#1a0a00' }}>
-          <div style={{ paddingTop: '56.25%', position: 'relative' }}>
-            <iframe
-              src="https://drive.google.com/file/d/1KCsNyCqQf63tuMRnSqFdZf2FKE0w9vik/preview"
-              title="Thank you video"
-              allow="autoplay; fullscreen"
-              allowFullScreen
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
-            />
-          </div>
+        <div style={{ width: '100%', maxWidth: 700 }}>
+          <VideoPlayer src="/scene/thankyou.mp4" driveId="1KCsNyCqQf63tuMRnSqFdZf2FKE0w9vik" accent="#F4831F" />
         </div>
 
         {/* Birthday chits scattered */}

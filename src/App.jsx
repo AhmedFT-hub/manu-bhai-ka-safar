@@ -97,7 +97,13 @@ export default function App() {
       setS(speechRef.current, { opacity: spOp, transform: `scale(${0.9 + spOp * 0.1})` })
 
       // ── dive-in zoom ramp (drives the scene; opens the panel mid-dive) ──
-      if (S.zoom.active) {
+      // Safety: once a dive has opened its panel and the panel is then closed,
+      // always release the zoom so the scene returns to the journey (otherwise
+      // it stays frozen-zoomed on the milestone and you can't move forward).
+      if (S.zoom.active && enterRef.current.opened && !currentOverlayRef.current) {
+        S.zoom = { active: false, index: -1, t: 0 }
+        enterRef.current.opened = false
+      } else if (S.zoom.active) {
         S.zoom.t = Math.min(1, S.zoom.t + 0.035)
         if (!enterRef.current.opened && S.zoom.t > 0.5) {
           enterRef.current.opened = true
@@ -176,15 +182,26 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── click-to-enter hint (the whole scene is clickable) ── */}
+      {/* ── arrival highlight: a glowing tap-pulse over the milestone ── */}
       <div ref={hintRef} onClick={() => startEnter(chapterIdx)} style={{
-        position: 'fixed', left: '50%', bottom: 'clamp(26px,6vh,70px)', transform: 'translateX(-50%)', zIndex: 6,
-        opacity: 0, pointerEvents: 'none', cursor: 'pointer', transition: 'opacity 0.5s ease' }}>
-        <div className="baloo" style={{ background: 'rgba(20,10,4,0.5)', color: '#FFE8C2', backdropFilter: 'blur(6px)',
-          border: '1.5px solid rgba(255,209,128,0.6)', borderRadius: 999, padding: '10px 24px',
-          fontSize: 'clamp(13px,1.4vw,18px)', fontWeight: 600, whiteSpace: 'nowrap',
-          boxShadow: '0 6px 24px rgba(0,0,0,0.4)', animation: 'signpostFloat 2.2s ease-in-out infinite' }}>
-          {chapter.enterLabel} ✨
+        position: 'fixed', left: '54%', top: '47%', width: 0, height: 0, zIndex: 6,
+        opacity: 0, pointerEvents: 'none', cursor: 'pointer', transition: 'opacity 0.6s ease' }}>
+        {/* soft warm glow */}
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: 220, height: 220, transform: 'translate(-50%,-50%)',
+          borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,209,128,0.45) 0%, rgba(255,170,60,0.12) 45%, transparent 70%)',
+          animation: 'arriveGlow 2.4s ease-in-out infinite' }} />
+        {/* expanding ripple rings */}
+        {[0, 0.9, 1.8].map((d, i) => (
+          <div key={i} style={{ position: 'absolute', left: '50%', top: '50%', width: 90, height: 90,
+            border: '2.5px solid rgba(255,224,170,0.9)', borderRadius: '50%',
+            animation: `arriveRipple 2.7s ease-out ${d}s infinite` }} />
+        ))}
+        {/* tap chip */}
+        <div className="baloo" style={{ position: 'absolute', left: '50%', top: 'calc(50% + 70px)', transform: 'translateX(-50%)',
+          background: 'rgba(20,10,4,0.55)', color: '#FFE8C2', backdropFilter: 'blur(6px)', border: '1.5px solid rgba(255,209,128,0.6)',
+          borderRadius: 999, padding: '8px 20px', fontSize: 'clamp(12px,1.3vw,16px)', fontWeight: 600, whiteSpace: 'nowrap',
+          boxShadow: '0 6px 24px rgba(0,0,0,0.4)', animation: 'arriveBob 2.2s ease-in-out infinite' }}>
+          Tap to explore ✨
         </div>
       </div>
 
