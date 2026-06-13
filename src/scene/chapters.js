@@ -44,7 +44,7 @@ export const CHAPTERS = [
   {
     id: 5, overlayId: 5,
     location: 'The New School', locationHi: 'Naya Vidyalay',
-    kidSpeech: 'We built this school together! 🏫', ctaLabel: 'See the School ✨', enterLabel: 'Click to enter the school',
+    kidSpeech: 'This is the school I go to now! 🏫', ctaLabel: 'See the School ✨', enterLabel: 'Click to enter the school',
     beats: [
       { hi: 'Nayi deewarein. Naye sapne.', en: 'New walls. New dreams.' },
       { hi: '3.5 lakh aanganwadis upgrade kiye gaye.', en: '350,000 aanganwadis upgraded — because of you.' },

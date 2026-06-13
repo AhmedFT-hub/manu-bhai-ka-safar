@@ -14,9 +14,6 @@ export default function Overlay1Welcome({ onClose }) {
         <h1 style={{ fontFamily: 'Baloo 2, cursive', fontWeight: 800, fontSize: 'clamp(28px,4vw,42px)', color: '#6B4226', margin: '4px 0 0', lineHeight: 1.1 }}>
           Happy Birthday, Manu Bhai! 🎂
         </h1>
-        <p style={{ fontFamily: 'Hind, sans-serif', fontSize: 'clamp(14px,1.5vw,17px)', color: '#8B6A4A', margin: '10px auto 0', maxWidth: 560, lineHeight: 1.55 }}>
-          Let me take you on a tour of our beloved Aanganwadi — let's go!
-        </p>
       </div>
 
       <VideoPlayer src="/scene/welcome.mp4" driveId="17d-TTX2MEseJnWaTvicj8dmkcv7sltkB" accent="#F4831F" />
