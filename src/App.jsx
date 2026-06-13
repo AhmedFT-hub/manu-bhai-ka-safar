@@ -181,10 +181,6 @@ export default function App() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [currentOverlay, closeOverlay])
-  const scrollToStop = useCallback((i) => {
-    const max = document.body.scrollHeight - window.innerHeight
-    window.scrollTo({ top: CENTERS[i] * max, behavior: 'smooth' })
-  }, [])
 
   const chapter = CHAPTERS[chapterIdx]
   const OverlayComp = currentOverlay ? OVERLAY_MAP[currentOverlay] : null
@@ -234,30 +230,6 @@ export default function App() {
         <div style={{ fontSize: 18, color: 'rgba(255,209,128,0.9)', animation: 'pulsePrompt 1.6s ease-in-out infinite', textShadow: '0 1px 8px rgba(0,0,0,0.7)' }}>↓</div>
       </div>
 
-      {/* ── Progress diyas ── */}
-      {openingDone && (
-        <div style={{ position: 'fixed', right: 16, top: '50%', transform: 'translateY(-50%)', zIndex: 50, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {CHAPTERS.map((ch, i) => {
-            const lit = i === chapterIdx || visited.has(ch.overlayId)
-            return (
-              <div key={ch.id} className="progress-diya" onClick={() => scrollToStop(i)} title={ch.location}>
-                <span className="diya-label">{ch.location}</span>
-                <svg width="26" height="30" viewBox="0 0 26 30">
-                  <ellipse cx="13" cy="24" rx="11" ry="4.5" fill={lit ? '#D4A017' : '#6B5020'} opacity="0.9" />
-                  <path d="M3 22 Q5 13 13 11 Q21 13 23 22" fill={lit ? '#FFA726' : '#5A4015'} />
-                  {lit && (
-                    <g style={{ animation: 'flicker 0.8s ease-in-out infinite', transformOrigin: '13px 9px' }}>
-                      <path d="M13 11 Q9 5 13 -1 Q17 5 13 11" fill="#FF6B00" opacity="0.95" />
-                      <path d="M13 9 Q11 4 13 1 Q15 4 13 9" fill="#FFC107" />
-                      <circle cx="13" cy="1" r="2.5" fill="#FFF176" opacity="0.7" />
-                    </g>
-                  )}
-                </svg>
-              </div>
-            )
-          })}
-        </div>
-      )}
 
       {/* ── Opening screen ── */}
       {!introGone && <OpeningScreen intro={intro} progress={progress} />}
