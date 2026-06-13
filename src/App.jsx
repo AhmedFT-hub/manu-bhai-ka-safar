@@ -27,8 +27,9 @@ export default function App() {
   const [visited, setVisited] = useState(new Set())
 
   // imperatively-animated DOM
-  const speechRef = useRef(), hintRef = useRef(), heroRef = useRef()
+  const speechRef = useRef(), cueRef = useRef(), heroRef = useRef()
   const currentOverlayRef = useRef(null)
+  const visitedRef = useRef(new Set())
 
   const st = useRef({ targetY: 0, curY: 0, prog: 0, ptx: 0, pty: 0, tptx: 0, tpty: 0, lastIdx: -1, lastPhase: '' })
 
@@ -111,9 +112,11 @@ export default function App() {
         }
       }
 
-      // ── "click to enter" hint ──
-      const hintOn = info.arrived > 0.8 && !S.zoom.active && !currentOverlayRef.current
-      setS(hintRef.current, { opacity: hintOn ? 1 : 0, pointerEvents: hintOn ? 'all' : 'none' })
+      // ── after a milestone is viewed, prompt to scroll on to the next ──
+      const visitedHere = visitedRef.current.has(CHAPTERS[info.index].overlayId)
+      const isLast = info.index === CHAPTERS.length - 1
+      const cueOn = info.arrived > 0.5 && !S.zoom.active && !currentOverlayRef.current && visitedHere && !isLast
+      setS(cueRef.current, { opacity: cueOn ? 1 : 0 })
 
       // ── React state only on meaningful change ──
       if (info.index !== s.lastIdx) { s.lastIdx = info.index; setChapterIdx(info.index) }
@@ -141,6 +144,7 @@ export default function App() {
   }, [])
   useEffect(() => { S.onEnter = startEnter; return () => { S.onEnter = null } }, [startEnter])
   useEffect(() => { currentOverlayRef.current = currentOverlay }, [currentOverlay])
+  useEffect(() => { visitedRef.current = visited }, [visited])
   const scrollToStop = useCallback((i) => {
     const max = document.body.scrollHeight - window.innerHeight
     window.scrollTo({ top: CENTERS[i] * max, behavior: 'smooth' })
@@ -182,27 +186,18 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── arrival highlight: a glowing tap-pulse over the milestone ── */}
-      <div ref={hintRef} onClick={() => startEnter(chapterIdx)} style={{
-        position: 'fixed', left: '54%', top: '47%', width: 0, height: 0, zIndex: 6,
-        opacity: 0, pointerEvents: 'none', cursor: 'pointer', transition: 'opacity 0.6s ease' }}>
-        {/* soft warm glow */}
-        <div style={{ position: 'absolute', left: '50%', top: '50%', width: 220, height: 220, transform: 'translate(-50%,-50%)',
-          borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,209,128,0.45) 0%, rgba(255,170,60,0.12) 45%, transparent 70%)',
-          animation: 'arriveGlow 2.4s ease-in-out infinite' }} />
-        {/* expanding ripple rings */}
-        {[0, 0.9, 1.8].map((d, i) => (
-          <div key={i} style={{ position: 'absolute', left: '50%', top: '50%', width: 90, height: 90,
-            border: '2.5px solid rgba(255,224,170,0.9)', borderRadius: '50%',
-            animation: `arriveRipple 2.7s ease-out ${d}s infinite` }} />
-        ))}
-        {/* tap chip */}
-        <div className="baloo" style={{ position: 'absolute', left: '50%', top: 'calc(50% + 70px)', transform: 'translateX(-50%)',
-          background: 'rgba(20,10,4,0.55)', color: '#FFE8C2', backdropFilter: 'blur(6px)', border: '1.5px solid rgba(255,209,128,0.6)',
-          borderRadius: 999, padding: '8px 20px', fontSize: 'clamp(12px,1.3vw,16px)', fontWeight: 600, whiteSpace: 'nowrap',
-          boxShadow: '0 6px 24px rgba(0,0,0,0.4)', animation: 'arriveBob 2.2s ease-in-out infinite' }}>
-          Tap to explore ✨
+      {/* ── after viewing a milestone: prominent "scroll to next" prompt ── */}
+      <div ref={cueRef} style={{
+        position: 'fixed', left: '50%', bottom: 'clamp(24px,5vh,56px)', transform: 'translateX(-50%)', zIndex: 6,
+        opacity: 0, pointerEvents: 'none', transition: 'opacity 0.5s ease',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div className="baloo" style={{ background: 'rgba(20,10,4,0.62)', color: '#FFE8C2', backdropFilter: 'blur(8px)',
+          border: '1.5px solid rgba(255,209,128,0.7)', borderRadius: 999, padding: '12px 28px',
+          fontSize: 'clamp(15px,1.7vw,21px)', fontWeight: 700, whiteSpace: 'nowrap',
+          boxShadow: '0 8px 28px rgba(0,0,0,0.45)' }}>
+          Scroll on to the next milestone
         </div>
+        <div style={{ fontSize: 26, color: '#FFD180', animation: 'pulsePrompt 1.4s ease-in-out infinite', textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}>↓</div>
       </div>
 
       {/* ── Progress diyas ── */}

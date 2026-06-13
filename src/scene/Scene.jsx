@@ -8,16 +8,16 @@ import { scene as S, travelPos, arrivalInfo, clamp, lerp, smooth } from './store
 
 const IMG_ASPECT = 1920 / 1072
 
-// where the "dive in" pushes toward, per scene (normalised offset from centre):
-// gate / notice board / door etc. so entering frames the right thing.
-const FOCALS = [
-  [0.16, 0.02],  // 1 entrance → the gate (centre-right)
-  [0.24, 0.0],   // 2 peepal lane → the tree (right)
-  [-0.30, 0.05], // 3 outside aanganwadi → the notice board (left)
-  [0.06, 0.0],   // 4 inside aanganwadi → the doorway
-  [0.04, 0.0],   // 5 school → the building
-  [0.0, 0.02],   // 6 memory wall → the frames
-  [0.0, -0.02],  // 7 celebration → the chowk
+// Per scene: where the landmark sits (x,y offset from centre) + glow radius `r`
+// (fraction of scene width). Used to both highlight the landmark and aim the dive-in.
+const HALO = [
+  { x: 0.14, y: -0.04, r: 0.26 }, // 1 entrance → the gate
+  { x: 0.30, y: -0.06, r: 0.34 }, // 2 peepal lane → the tree (right)
+  { x: -0.32, y: 0.04, r: 0.20 }, // 3 outside aanganwadi → the notice board (left)
+  { x: 0.10, y: 0.02, r: 0.22 },  // 4 inside aanganwadi → the doorway
+  { x: 0.02, y: -0.02, r: 0.30 }, // 5 school → the building
+  { x: 0.0, y: 0.04, r: 0.34 },   // 6 memory wall → the framed wall
+  { x: 0.0, y: -0.08, r: 0.30 },  // 7 celebration → the chowk banner
 ]
 
 function cfg(tex) {
@@ -62,51 +62,59 @@ function edgeFadeX() {
 }
 
 // ── one full-bleed scene we travel through ───────────────────────────────────
-function SceneImage({ url, index, focal }) {
+function SceneImage({ url, index, halo }) {
   const tex = useTexture(url)
   useMemo(() => cfg(tex), [tex])
   const alpha = useMemo(() => edgeFadeX(), [])
-  const mesh = useRef()
+  const glowTex = useMemo(() => radialTexture('rgba(255,232,170,0.95)', 'rgba(255,196,90,0)'), [])
+  const group = useRef()
+  const sceneMesh = useRef()
+  const glow = useRef()
   const lastDelta = useRef(99)
 
   useFrame((state) => {
     const v = viewAt(state, Z_SCENE)
     const W = v.width, H = v.height
     const screenAspect = W / H
-    // cover-fit the 16:9 scene to the screen (overscan a touch so the gentle
-    // pan never exposes an edge)
     let cw, ch
     if (screenAspect > IMG_ASPECT) { cw = W; ch = W / IMG_ASPECT } else { ch = H; cw = H * IMG_ASPECT }
     cw *= 1.12; ch *= 1.12
 
     const pf = travelPos(S.progress)
-    const delta = index - pf // 0 → centred; ±1 → the neighbour
+    const delta = index - pf
     lastDelta.current = delta
     const ad = Math.abs(delta)
     const here = clamp(1 - ad, 0, 1)
 
-    // Continuous travel: scenes cross-fade through one another with a gentle
-    // forward pan + push, so it reads as one moving world, not a slideshow.
     let op = smooth(here)
-    let x = delta * W * 0.55           // partial slide → scenes overlap & blend
+    let x = delta * W * 0.55
     let y = 0
-    let scale = 1 + here * 0.05 + (delta < 0 ? -delta * 0.18 : 0) // push past as you leave
+    let scale = 1 + here * 0.05 + (delta < 0 ? -delta * 0.18 : 0)
 
     const zooming = S.zoom.active && S.zoom.index === index
     if (zooming) {
       const t = smooth(S.zoom.t)
       op = 1
-      scale = (1 + here * 0.05) + t * 1.5 // dive into the scene
-      x = lerp(x, -focal[0] * cw * scale, t)
-      y = lerp(0, -focal[1] * ch * scale, t)
+      scale = (1 + here * 0.05) + t * 1.5
+      x = lerp(x, -halo.x * cw * scale, t)
+      y = lerp(0, -halo.y * ch * scale, t)
     }
 
-    mesh.current.visible = (zooming || op > 0.004)
-    if (!mesh.current.visible) return
-    mesh.current.scale.set(cw * scale, ch * scale, 1)
-    mesh.current.position.set(x, y, Z_SCENE)
-    mesh.current.material.opacity = op
-    mesh.current.renderOrder = zooming ? 50 : Math.round(here * 10) // centred scene draws on top
+    group.current.visible = (zooming || op > 0.004)
+    if (!group.current.visible) return
+    group.current.scale.set(cw * scale, ch * scale, 1)
+    group.current.position.set(x, y, Z_SCENE)
+    sceneMesh.current.material.opacity = op
+    sceneMesh.current.renderOrder = zooming ? 50 : Math.round(here * 10)
+
+    // ── highlight the milestone itself: a soft glow around the landmark that
+    //    pulses while you're stopped here (and not already diving in) ──
+    const active = here > 0.55 && !S.zoom.active
+    const pulse = 0.5 + 0.5 * Math.sin(state.clock.elapsedTime * 2.0)
+    glow.current.material.opacity = active ? (0.32 + 0.32 * pulse) * op : 0
+    glow.current.position.set(halo.x, halo.y, 0.02)
+    glow.current.scale.set(halo.r * 2, halo.r * 2 * IMG_ASPECT, 1)
+    glow.current.renderOrder = 12
   })
 
   const onClick = (e) => {
@@ -118,10 +126,16 @@ function SceneImage({ url, index, focal }) {
   const onOut = () => { if (S.hoverIndex === index) { S.hoverIndex = -1; document.body.style.cursor = 'default' } }
 
   return (
-    <mesh ref={mesh} renderOrder={index} onClick={onClick} onPointerOver={onOver} onPointerOut={onOut}>
-      <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial map={tex} alphaMap={alpha} transparent toneMapped={false} />
-    </mesh>
+    <group ref={group}>
+      <mesh ref={sceneMesh} renderOrder={index} onClick={onClick} onPointerOver={onOver} onPointerOut={onOut}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial map={tex} alphaMap={alpha} transparent toneMapped={false} />
+      </mesh>
+      <mesh ref={glow}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial map={glowTex} transparent opacity={0} depthWrite={false} toneMapped={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+    </group>
   )
 }
 
@@ -270,7 +284,7 @@ function Rig() {
 function World() {
   return (
     <>
-      {SCENES.map((u, i) => <SceneImage key={i} url={u} index={i} focal={FOCALS[i]} />)}
+      {SCENES.map((u, i) => <SceneImage key={i} url={u} index={i} halo={HALO[i]} />)}
       <Particles />
       <Boy />
     </>
