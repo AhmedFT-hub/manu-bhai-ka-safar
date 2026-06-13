@@ -1,6 +1,6 @@
 // Cleaned, web-ready assets live in /public (served at /scene/…), as WebP for
 // fast loading. ?v=N busts the browser cache when the assets are regenerated.
-const V = '15'
+const V = '16'
 const B = `/scene`
 const u = (name) => `${B}/${name}?v=${V}`
 

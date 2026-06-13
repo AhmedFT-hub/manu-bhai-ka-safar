@@ -13,7 +13,7 @@ const IMG_ASPECT = 1920 / 1072
 const HALO = [
   { x: 0.14, y: -0.04, r: 0.26 }, // 1 entrance → the gate
   { x: 0.30, y: -0.06, r: 0.34 }, // 2 peepal lane → the tree (right)
-  { x: -0.32, y: 0.04, r: 0.20 }, // 3 outside aanganwadi → the notice board (left)
+  { x: -0.12, y: 0.06, r: 0.20 }, // 3 outside aanganwadi → the notice board (centre-left)
   { x: 0.10, y: 0.02, r: 0.22 },  // 4 inside aanganwadi → the doorway
   { x: 0.02, y: -0.02, r: 0.30 }, // 5 school → the building
   { x: 0.0, y: 0.04, r: 0.34 },   // 6 memory wall → the framed wall
