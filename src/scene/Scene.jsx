@@ -201,7 +201,7 @@ function Boy() {
     // lively "speaking" motion at a stop (the asset is one frame, so bob + squash)
     const talkBob = talking ? Math.abs(Math.sin(tk * 5.2)) * hH * 0.016 : 0
     const talkSquash = talking ? 1 + Math.sin(tk * 5.2) * 0.012 : 1
-    const footY = -v.height / 2 + v.height * 0.165 // stand ON the path, not in it
+    const footY = -v.height / 2 + v.height * 0.12 // feet on the road
     group.current.position.set(-v.width * 0.26, footY + hH / 2 + idleBreath + talkBob, Z)
     mesh.current.scale.set(wW * flip, hH * talkSquash, 1)
     mat.current.opacity = hidden ? 0 : 1
