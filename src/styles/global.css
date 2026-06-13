@@ -99,10 +99,18 @@ body {
   50% { opacity: 1; transform: translateY(4px); }
 }
 
-/* Opening establishing shot: slow cinematic push-in toward the village entrance */
-@keyframes aerialZoom {
-  0%   { transform: scale(1.0)  translateY(0); }
-  100% { transform: scale(1.6) translateY(4%); }
+/* Opening cinematic: dive through the aerial stages, each pushing in + crossfading */
+@keyframes diveStage {
+  0%   { opacity: 0; transform: scale(1.04); }
+  16%  { opacity: 1; }
+  72%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.58); }
+}
+/* last stage holds (no fade-out) so it crossfades into the gate as the overlay lifts */
+@keyframes diveStageHold {
+  0%   { opacity: 0; transform: scale(1.04); }
+  22%  { opacity: 1; }
+  100% { opacity: 1; transform: scale(1.42); }
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 

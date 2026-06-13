@@ -1,6 +1,6 @@
 // Cleaned, web-ready assets live in /public (served at /scene/…), as WebP for
 // fast loading. ?v=N busts the browser cache when the assets are regenerated.
-const V = '18'
+const V = '19'
 const B = `/scene`
 const u = (name) => `${B}/${name}?v=${V}`
 
@@ -16,10 +16,9 @@ export const PHOTOS = [1, 2, 3, 4].map((n) => u(`photo-${n}.webp`))         // m
 // designed infographic slides shown as the popup view for these milestones
 export const SLIDES = { 2: u('slide-2.webp'), 4: u('slide-4.webp'), 5: u('slide-5.webp') }
 
-// Opening establishing shot (aerial view of the whole village). Placeholder is
-// the entrance scene (reads as a zoom-into-the-village); swap to the real aerial
-// illustration once it's dropped in as village-aerial.webp.
-export const AERIAL = u('scn1.webp')
+// Opening cinematic: 4 aerial stages, widest → closest (street level), that we
+// dive through before landing on the village gate (scene 1).
+export const AERIALS = [u('aerial-1.webp'), u('aerial-2.webp'), u('aerial-3.webp'), u('aerial-4.webp')]
 
 // One consistent character throughout (from character_anim / birthday_anim):
 // walk cycle while moving, a single standing frame at rest, celebration at the end.

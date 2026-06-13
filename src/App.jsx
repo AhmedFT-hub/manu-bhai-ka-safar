@@ -3,7 +3,7 @@ import { useProgress } from '@react-three/drei'
 import SceneCanvas from './scene/Scene'
 import { scene as S, CENTERS, START, arrivalInfo, clamp, lerp } from './scene/store'
 import { CHAPTERS } from './scene/chapters'
-import { AERIAL } from './scene/assets'
+import { AERIALS } from './scene/assets'
 import Overlay1Welcome from './components/overlays/Overlay1Welcome'
 import Overlay2WhenWeBegan from './components/overlays/Overlay2WhenWeBegan'
 import Overlay3Drawings from './components/overlays/Overlay3Drawings'
@@ -34,7 +34,10 @@ export default function App() {
 
   const st = useRef({ targetY: 0, curY: 0, prog: 0, ptx: 0, pty: 0, tptx: 0, tpty: 0, lastIdx: -1, lastPhase: '' })
 
-  useEffect(() => { S.reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false }, [])
+  useEffect(() => {
+    S.reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false
+    AERIALS.forEach((src) => { const i = new Image(); i.src = src }) // preload the dive frames
+  }, [])
 
   // Cinematic opening: hold a loader until every texture is in, then play the
   // aerial establishing push-in, then hand off to the (scroll-driven) journey.
@@ -44,7 +47,7 @@ export default function App() {
     if (ready && intro === 'load') { const t = setTimeout(() => setIntro('aerial'), 300); return () => clearTimeout(t) }
   }, [ready, intro])
   useEffect(() => {
-    if (intro === 'aerial') { const t = setTimeout(() => setIntro('done'), 4600); return () => clearTimeout(t) }
+    if (intro === 'aerial') { const t = setTimeout(() => setIntro('done'), 5700); return () => clearTimeout(t) }
   }, [intro])
   useEffect(() => {
     if (intro === 'done') { const t = setTimeout(() => setIntroGone(true), 1000); return () => clearTimeout(t) }
@@ -260,11 +263,14 @@ function OpeningScreen({ intro, progress = 0 }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, overflow: 'hidden', background: '#0a0e16',
       opacity: intro === 'done' ? 0 : 1, transition: 'opacity 0.9s ease', pointerEvents: intro === 'done' ? 'none' : 'auto' }}>
 
-      {/* aerial establishing shot — slow cinematic push-in toward the entrance */}
-      {!loading && (
-        <img src={AERIAL} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', transformOrigin: '52% 64%', animation: 'aerialZoom 5.2s ease-in-out forwards' }} />
-      )}
+      {/* aerial dive — 4 stages, widest → street level, each pushing in + crossfading */}
+      {!loading && AERIALS.map((src, i) => (
+        <img key={i} src={src} alt="" style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+          transformOrigin: '52% 58%', opacity: 0,
+          animation: `${i === AERIALS.length - 1 ? 'diveStageHold' : 'diveStage'} ${i === AERIALS.length - 1 ? '2.2s' : '1.85s'} ease-in ${i * 1.18}s both`,
+        }} />
+      ))}
 
       {/* content layer */}
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 24,
