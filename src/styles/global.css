@@ -99,6 +99,13 @@ body {
   50% { opacity: 1; transform: translateY(4px); }
 }
 
+/* Opening establishing shot: slow cinematic push-in toward the village entrance */
+@keyframes aerialZoom {
+  0%   { transform: scale(1.0)  translateY(0); }
+  100% { transform: scale(1.6) translateY(4%); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 /* Scene container */
 .scene-wrapper {
   position: fixed;

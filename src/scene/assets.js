@@ -10,6 +10,11 @@ export const SCENES = [
   u('scn4.webp'), u('scn5.webp'), u('scn6.webp'), u('scn7.webp'),
 ]
 
+// Opening establishing shot (aerial view of the whole village). Placeholder is
+// the entrance scene (reads as a zoom-into-the-village); swap to the real aerial
+// illustration once it's dropped in as village-aerial.webp.
+export const AERIAL = u('scn1.webp')
+
 // One consistent character throughout (from character_anim / birthday_anim):
 // walk cycle while moving, a single standing frame at rest, celebration at the end.
 export const BOY = {

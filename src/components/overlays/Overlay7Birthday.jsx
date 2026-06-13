@@ -168,6 +168,19 @@ export default function Overlay7Birthday() {
           </div>
         </div>
 
+        {/* Thank-you video */}
+        <div style={{ width: '100%', maxWidth: 640, border: '6px solid #F4831F', borderRadius: 14, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.22)', background: '#1a0a00' }}>
+          <div style={{ paddingTop: '56.25%', position: 'relative' }}>
+            <iframe
+              src="https://drive.google.com/file/d/1KCsNyCqQf63tuMRnSqFdZf2FKE0w9vik/preview"
+              title="Thank you video"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+            />
+          </div>
+        </div>
+
         {/* Birthday chits scattered */}
         <div style={{ position: 'relative', width: '100%', height: 420, maxWidth: 800 }}>
           {CHIT_MESSAGES.map((chit, i) => (

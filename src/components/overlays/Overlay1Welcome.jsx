@@ -36,10 +36,10 @@ export default function Overlay1Welcome({ onClose }) {
       </svg>
 
       <h1 style={{ fontFamily: 'Baloo 2, cursive', fontWeight: 800, fontSize: 36, color: '#795548', textAlign: 'center', margin: 0 }}>
-        Swagat Hai, Manu Bhai!
+        Happy Birthday, Manu Bhai!
       </h1>
-      <p style={{ fontFamily: 'Caveat, cursive', fontSize: 22, color: '#8B5E3C', textAlign: 'center' }}>
-        Aapka is khaas safar mein swagat hai ✨
+      <p style={{ fontFamily: 'Caveat, cursive', fontSize: 22, color: '#8B5E3C', textAlign: 'center', maxWidth: 620 }}>
+        Let me take you on a tour of our beloved Aanganwadi — let's go! ✨
       </p>
 
       {/* Video container styled inside gate arch */}
@@ -54,13 +54,13 @@ export default function Overlay1Welcome({ onClose }) {
         background: '#1a0a00',
       }}>
         <div style={{ paddingTop: '56.25%', position: 'relative' }}>
-          <div className="placeholder-block" style={{
-            position: 'absolute', inset: 0, borderRadius: 0, border: 'none',
-            fontSize: 22, flexDirection: 'column', gap: 8,
-          }}>
-            <span>🎬</span>
-            <span>VIDEO — paste embed URL here</span>
-          </div>
+          <iframe
+            src="https://drive.google.com/file/d/17d-TTX2MEseJnWaTvicj8dmkcv7sltkB/preview"
+            title="Welcome video"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+          />
         </div>
       </div>
 
@@ -73,13 +73,13 @@ export default function Overlay1Welcome({ onClose }) {
         <g transform="translate(630, 30)"><DiyaSmall/></g>
       </svg>
 
-      {/* Aage Chalo button */}
+      {/* Continue button */}
       <button className="signpost-btn" onClick={onClose} style={{ marginTop: 12, fontSize: 24, padding: '14px 48px' }}>
-        Aage Chalo →
+        Let's Go →
       </button>
 
       <p style={{ fontFamily: 'Hind, sans-serif', color: '#9E9E9E', fontSize: 13, marginTop: 8 }}>
-        Scroll karke aage badhein — aapka safar abhi shuru hua hai!
+        Close this and keep scrolling — your journey has just begun!
       </p>
     </div>
   )

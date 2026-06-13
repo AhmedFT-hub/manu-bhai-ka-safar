@@ -3,7 +3,7 @@ import { useProgress } from '@react-three/drei'
 import SceneCanvas from './scene/Scene'
 import { scene as S, CENTERS, START, arrivalInfo, clamp, lerp } from './scene/store'
 import { CHAPTERS } from './scene/chapters'
-import { BOY } from './scene/assets'
+import { AERIAL } from './scene/assets'
 import Overlay1Welcome from './components/overlays/Overlay1Welcome'
 import Overlay2WhenWeBegan from './components/overlays/Overlay2WhenWeBegan'
 import Overlay3Drawings from './components/overlays/Overlay3Drawings'
@@ -20,8 +20,9 @@ const setS = (el, props) => { if (el) for (const k in props) el.style[k] = props
 export default function App() {
   const [chapterIdx, setChapterIdx] = useState(0)
   const [phase, setPhase] = useState('hero') // 'hero' | 'journey'
-  const [openingDone, setOpeningDone] = useState(false)
-  const [openStep, setOpenStep] = useState(0)
+  const [intro, setIntro] = useState('load') // load → aerial → done
+  const [introGone, setIntroGone] = useState(false)
+  const openingDone = intro === 'done'
   const [currentOverlay, setCurrentOverlay] = useState(null)
   const [visited, setVisited] = useState(new Set())
 
@@ -31,23 +32,21 @@ export default function App() {
 
   const st = useRef({ targetY: 0, curY: 0, prog: 0, ptx: 0, pty: 0, tptx: 0, tpty: 0, lastIdx: -1, lastPhase: '' })
 
-  // opening reveal steps (visual)
-  useEffect(() => {
-    S.reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false
-    const t = [
-      setTimeout(() => setOpenStep(1), 400),
-      setTimeout(() => setOpenStep(2), 1100),
-      setTimeout(() => setOpenStep(3), 1900),
-    ]
-    return () => t.forEach(clearTimeout)
-  }, [])
+  useEffect(() => { S.reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false }, [])
 
-  // hold the opening screen until every texture has actually loaded
+  // Cinematic opening: hold a loader until every texture is in, then play the
+  // aerial establishing push-in, then hand off to the (scroll-driven) journey.
   const { active, progress } = useProgress()
   const ready = progress >= 100 && !active
   useEffect(() => {
-    if (ready && openStep >= 3) { const t = setTimeout(() => setOpeningDone(true), 500); return () => clearTimeout(t) }
-  }, [ready, openStep])
+    if (ready && intro === 'load') { const t = setTimeout(() => setIntro('aerial'), 300); return () => clearTimeout(t) }
+  }, [ready, intro])
+  useEffect(() => {
+    if (intro === 'aerial') { const t = setTimeout(() => setIntro('done'), 4600); return () => clearTimeout(t) }
+  }, [intro])
+  useEffect(() => {
+    if (intro === 'done') { const t = setTimeout(() => setIntroGone(true), 1000); return () => clearTimeout(t) }
+  }, [intro])
 
   useEffect(() => {
     document.body.style.height = `${PAGE_SCREENS * 100}vh`
@@ -215,7 +214,7 @@ export default function App() {
       )}
 
       {/* ── Opening screen ── */}
-      {!openingDone && <OpeningScreen step={openStep} progress={progress} ready={ready} />}
+      {!introGone && <OpeningScreen intro={intro} progress={progress} />}
 
       {/* ── Content overlay ── */}
       {OverlayComp && (
@@ -230,46 +229,62 @@ export default function App() {
   )
 }
 
-function OpeningScreen({ step, progress = 0, ready = false }) {
+function OpeningScreen({ intro, progress = 0 }) {
+  const loading = intro === 'load'
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0e16', transition: 'opacity 0.8s ease' }}>
-      <svg width="48" height="72" viewBox="0 0 48 72">
-        <ellipse cx="24" cy="58" rx="20" ry="8" fill="#D4A017" />
-        <path d="M4 56 Q10 38 24 34 Q38 38 44 56" fill="#FFA726" />
-        <g style={{ animation: 'flicker 0.9s ease-in-out infinite', transformOrigin: '24px 32px' }}>
-          <path d="M24 34 Q17 18 24 4 Q31 18 24 34" fill="#FF6B00" opacity="0.95" />
-          <path d="M24 30 Q19 16 24 8 Q29 16 24 30" fill="#FFC107" />
-          <circle cx="24" cy="6" r="5" fill="#FFF176" opacity="0.8" />
-        </g>
-      </svg>
-      <div style={{ opacity: step >= 1 ? 1 : 0, transform: step >= 1 ? 'translateY(0)' : 'translateY(24px)', transition: 'opacity 1s ease, transform 1s ease', textAlign: 'center', marginTop: 26 }}>
-        <h1 className="baloo" style={{ fontWeight: 800, fontSize: 'clamp(32px,5vw,72px)', color: '#FFB14E', textShadow: '0 0 60px rgba(244,131,31,0.55)', lineHeight: 1.1, margin: 0 }}>Manu Bhai Ka Safar</h1>
-        <p className="caveat" style={{ fontSize: 'clamp(16px,2vw,26px)', color: '#FDF0D5', margin: '10px 0 0' }}>A special journey — made for you</p>
-      </div>
-      {step >= 2 && (
-        <div style={{ margin: '30px 0 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'noteUnfurl 0.5s ease both' }}>
-          <img src={BOY.front} alt="" style={{ height: 'min(34vh, 280px)', filter: 'drop-shadow(0 14px 26px rgba(0,0,0,0.5))' }} />
-          <div style={{ background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(244,131,31,0.55)', borderRadius: 16, padding: '12px 22px', maxWidth: 460, textAlign: 'center', backdropFilter: 'blur(8px)', marginTop: 14 }}>
-            <span className="caveat" style={{ fontSize: 20, color: '#FDF0D5' }}>"Hello Manu Bhai! I'm Chotu — come, let me show you around my village! 🌟"</span>
-          </div>
-        </div>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, overflow: 'hidden', background: '#0a0e16',
+      opacity: intro === 'done' ? 0 : 1, transition: 'opacity 0.9s ease', pointerEvents: intro === 'done' ? 'none' : 'auto' }}>
+
+      {/* aerial establishing shot — slow cinematic push-in toward the entrance */}
+      {!loading && (
+        <img src={AERIAL} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%',
+          objectFit: 'cover', transformOrigin: '52% 64%', animation: 'aerialZoom 5.2s ease-in-out forwards' }} />
       )}
-      {/* loading bar → swaps to the scroll prompt once everything is loaded */}
-      <div style={{ marginTop: 26, height: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        {ready ? (
-          <div className="caveat" style={{ fontSize: 20, color: '#FDF0D5', opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.6s ease', animation: step >= 3 ? 'pulsePrompt 2s ease-in-out infinite' : 'none' }}>
-            Scroll to begin — Chotu will walk you there ↓
-          </div>
-        ) : (
-          <div style={{ width: 'min(60vw, 260px)', textAlign: 'center' }}>
-            <div style={{ height: 5, width: '100%', borderRadius: 4, background: 'rgba(253,240,213,0.15)', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.round(progress)}%`, background: 'linear-gradient(90deg,#FFA726,#F4831F)', borderRadius: 4, transition: 'width 0.3s ease' }} />
-            </div>
-            <div className="caveat" style={{ fontSize: 15, color: 'rgba(253,240,213,0.7)', marginTop: 10 }}>
-              Loading the village… {Math.round(progress)}%
-            </div>
-          </div>
+
+      {/* content layer */}
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 24,
+        background: loading ? '#0a0e16' : 'linear-gradient(to top, rgba(20,10,4,0.6) 0%, rgba(20,10,4,0.12) 45%, rgba(20,10,4,0.45) 100%)' }}>
+
+        {loading && (
+          <svg width="48" height="72" viewBox="0 0 48 72" style={{ marginBottom: 20 }}>
+            <ellipse cx="24" cy="58" rx="20" ry="8" fill="#D4A017" />
+            <path d="M4 56 Q10 38 24 34 Q38 38 44 56" fill="#FFA726" />
+            <g style={{ animation: 'flicker 0.9s ease-in-out infinite', transformOrigin: '24px 32px' }}>
+              <path d="M24 34 Q17 18 24 4 Q31 18 24 34" fill="#FF6B00" opacity="0.95" />
+              <path d="M24 30 Q19 16 24 8 Q29 16 24 30" fill="#FFC107" />
+              <circle cx="24" cy="6" r="5" fill="#FFF176" opacity="0.8" />
+            </g>
+          </svg>
         )}
+
+        <div style={{ animation: loading ? 'none' : 'fadeIn 1.6s ease both' }}>
+          <div className="caveat" style={{ fontSize: 'clamp(13px,1.4vw,17px)', color: 'rgba(253,240,213,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12, textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}>
+            Rocket Learning Presents
+          </div>
+          <h1 className="baloo" style={{ fontWeight: 800, fontSize: 'clamp(38px,6.5vw,90px)', color: '#FFB14E', textShadow: '0 4px 40px rgba(0,0,0,0.6), 0 0 70px rgba(244,131,31,0.5)', lineHeight: 1.05, margin: 0 }}>
+            Manu Bhai Ka Safar
+          </h1>
+          <p className="caveat" style={{ fontSize: 'clamp(16px,2.2vw,30px)', color: '#FDF0D5', margin: '12px 0 0', textShadow: '0 2px 16px rgba(0,0,0,0.6)' }}>
+            One village. Seven milestones. A journey made just for you.
+          </p>
+        </div>
+
+        <div style={{ marginTop: 30, height: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          {loading ? (
+            <div style={{ width: 'min(60vw, 260px)', textAlign: 'center' }}>
+              <div style={{ height: 5, width: '100%', borderRadius: 4, background: 'rgba(253,240,213,0.15)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.round(progress)}%`, background: 'linear-gradient(90deg,#FFA726,#F4831F)', borderRadius: 4, transition: 'width 0.3s ease' }} />
+              </div>
+              <div className="caveat" style={{ fontSize: 15, color: 'rgba(253,240,213,0.7)', marginTop: 10 }}>
+                Loading the village… {Math.round(progress)}%
+              </div>
+            </div>
+          ) : (
+            <div className="caveat" style={{ fontSize: 'clamp(16px,1.8vw,22px)', color: '#FDF0D5', textShadow: '0 2px 14px rgba(0,0,0,0.7)', animation: 'fadeIn 1.2s ease 2.6s both' }}>
+              Chotu is waiting at the gate… ↓
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
