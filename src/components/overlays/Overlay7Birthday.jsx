@@ -100,14 +100,9 @@ export default function Overlay7Birthday() {
   ]
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', background: 'linear-gradient(135deg, #FFF8DC 0%, #FFF54F 50%, #FFF176 100%)' }}>
-      <Confetti />
-
-      {/* String lights at top */}
-      <StringLights />
-
+    <div style={{ position: 'relative' }}>
       {/* Main content */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, padding: '20px 40px', position: 'relative', zIndex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, position: 'relative', zIndex: 1 }}>
         {/* Birthday banner SVG */}
         <div style={{ width: '100%', maxWidth: 700 }}>
           <svg width="100%" viewBox="0 0 700 100">

@@ -239,13 +239,15 @@ export default function App() {
       {/* ── Opening screen ── */}
       {!introGone && <OpeningScreen intro={intro} progress={progress} />}
 
-      {/* ── Content overlay ── */}
+      {/* ── Content popup (card over blurred scene) ── */}
       {OverlayComp && (
-        <div className={`overlay-backdrop ${currentOverlay ? 'open' : ''}`} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='5' height='5'%3E%3Ccircle cx='1' cy='1' r='0.5' fill='rgba(120,80,40,0.06)'/%3E%3C/svg%3E\")" }}>
-          <div className="overlay-content"><OverlayComp onClose={closeOverlay} /></div>
-          <button className="overlay-close" onClick={closeOverlay}>
-            <svg width="20" height="20" viewBox="0 0 20 20"><path d="M2 2 L18 18 M18 2 L2 18" stroke="white" strokeWidth="3" strokeLinecap="round" /></svg>
-          </button>
+        <div className={`overlay-backdrop ${currentOverlay ? 'open' : ''}`} onClick={closeOverlay}>
+          <div className="overlay-content" onClick={(e) => e.stopPropagation()}>
+            <button className="overlay-close" onClick={closeOverlay} aria-label="Close">
+              <svg width="18" height="18" viewBox="0 0 20 20"><path d="M3 3 L17 17 M17 3 L3 17" stroke="#6B4226" strokeWidth="2.6" strokeLinecap="round" /></svg>
+            </button>
+            <OverlayComp onClose={closeOverlay} />
+          </div>
         </div>
       )}
     </>
