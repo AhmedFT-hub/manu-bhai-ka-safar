@@ -147,6 +147,7 @@ export default function App() {
   const startEnter = useCallback((i) => {
     if (S.zoom.active) return
     enterRef.current.opened = false
+    enterRef.current.index = i
     S.zoom = { active: true, index: i, t: 0 }
   }, [])
   const closeOverlay = useCallback(() => {
@@ -155,6 +156,20 @@ export default function App() {
     enterRef.current.opened = false
     S.hoverIndex = -1
     document.body.style.cursor = 'default'
+    // Snap the scroll baseline back to the milestone just viewed, so closing
+    // doesn't spring forward — the user moves on only by scrolling themselves.
+    const idx = enterRef.current.index ?? 0
+    const max = Math.max(1, document.body.scrollHeight - window.innerHeight)
+    const y = CENTERS[idx] * max
+    window.scrollTo(0, y); st.current.curY = y; st.current.targetY = y
+  }, [])
+  const resetJourney = useCallback(() => {
+    setCurrentOverlay(null)
+    S.zoom = { active: false, index: -1, t: 0 }
+    enterRef.current.opened = false
+    maxUnlockedRef.current = 0
+    setVisited(new Set()); visitedRef.current = new Set()
+    window.scrollTo(0, 0); st.current.curY = 0; st.current.targetY = 0; st.current.prog = 0
   }, [])
   useEffect(() => { S.onEnter = startEnter; return () => { S.onEnter = null } }, [startEnter])
   useEffect(() => { currentOverlayRef.current = currentOverlay }, [currentOverlay])
@@ -254,7 +269,7 @@ export default function App() {
             <button className="overlay-close" onClick={closeOverlay} aria-label="Close">
               <svg width="18" height="18" viewBox="0 0 20 20"><path d="M3 3 L17 17 M17 3 L3 17" stroke="#6B4226" strokeWidth="2.6" strokeLinecap="round" /></svg>
             </button>
-            <OverlayComp onClose={closeOverlay} />
+            <OverlayComp onClose={closeOverlay} onReset={resetJourney} />
           </div>
         </div>
       )}
